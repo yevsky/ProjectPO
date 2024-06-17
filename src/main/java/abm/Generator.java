@@ -4,12 +4,26 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+/**
+ * The Generator class is responsible for generating the initial set of agents
+ * (stars, planets, and meteorites) for the space simulation.
+ */
 public class Generator {
     public int sizeX = 1000, sizeY = 800; // Tested, don't edit
     public double minStarDistance = 200;
     public double minPlanetDistance = 25;
     public double borderMargin = 100; // Margin from the border where stars cannot be placed
 
+    /**
+     * This function generates a list of agents (stars, planets, and meteorites) for the simulation.
+     *
+     * @param starCount The number of stars to generate.
+     * @param planetCount The number of planets to generate per star.
+     * @param meteoriteCount The number of meteorites to generate.
+     * @param planetSpeed The speed of the planets around their stars.
+     * @param meteoriteSpeed The speed of the meteorites.
+     * @return A list of generated agents.
+     */
     public List<Agent> generateObjects(int starCount, int planetCount, int meteoriteCount, double planetSpeed, double meteoriteSpeed) {
         List<Agent> agents = new ArrayList<>();
         Random rand = new Random();
@@ -48,7 +62,7 @@ public class Generator {
                     // radius of a planet(depends on iteration)
                     double maxOrbitRadius = star.getOrbitRadius() * (0.5 + rand.nextDouble());
                     orbitRadius = minOrbitRadius + (maxOrbitRadius - minOrbitRadius) * rand.nextDouble();
-                    angularVelocity = planetSpeed / orbitRadius; // If a planet is closer
+                    angularVelocity = (planetSpeed * planetSpeed + 10) / orbitRadius; // If a planet is closer
                     // to the star then angVel will have a bigger number
                     double angle = rand.nextDouble() * 2 * Math.PI;
                     planetX = star.getX() + orbitRadius * Math.cos(angle);

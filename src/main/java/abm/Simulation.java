@@ -19,6 +19,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Simulation extends Application {
@@ -37,7 +38,13 @@ public class Simulation extends Application {
     private Slider[] sliders;
     private Button startButton;
     private Button stopButton;
+    private final ResultsPrinter resultsPrinter = new ResultsPrinter();
 
+    /**
+     * This function starts the JavaFX simulation and sets up the main stage.
+     *
+     * @param primaryStage The primary stage of the application.
+     */
     @Override
     public void start(Stage primaryStage) {
         // Setting up the main layout and scene
@@ -55,7 +62,7 @@ public class Simulation extends Application {
         starCountSlider = new Slider(0, 10, 5);
         planetCountSlider = new Slider(0, 8, 4);
         meteoriteCountSlider = new Slider(0, 100, 50);
-        planetSpeedSlider = new Slider(0.0, 100, 50);
+        planetSpeedSlider = new Slider(0, 10, 5);
         meteoriteSpeedSlider = new Slider(0, 10, 5);
 
         // Setting labels under each slider
@@ -142,7 +149,7 @@ public class Simulation extends Application {
                 startButton.setDisable(true);
                 stopButton.setDisable(false);
             }
-            if (event.getCode() == KeyCode.NUMPAD2) {
+            if (event.getCode() == KeyCode.NUMPAD2) { //Not recommended
                 isPaused = !isPaused;
             }
             if (event.getCode() == KeyCode.NUMPAD3) {
@@ -161,14 +168,30 @@ public class Simulation extends Application {
         updateSliderLabels();
     }
 
+    /**
+     * This function configures a slider by setting its properties like tick labels, tick marks,
+     * major tick unit, and block increment.
+     * It also adds a listener to the slider's value property to update the corresponding label.
+     *
+     * @param slider The slider to configure.
+     * @param majorTickUnit The major tick unit for the slider.
+     * @param label The label to update with the slider's value.
+     */
     private void configureSlider(Slider slider, int majorTickUnit, Label label) {
         slider.setShowTickLabels(true);
         slider.setShowTickMarks(true);
         slider.setMajorTickUnit(majorTickUnit);
         slider.setBlockIncrement(majorTickUnit);
-        slider.valueProperty().addListener((observable, oldValue, newValue) -> label.setText(String.format("%.0f", newValue)));
+        slider.valueProperty().addListener((observable, oldValue, newValue)
+                -> label.setText(String.format("%.0f", newValue)));
     }
 
+    /**
+     * This function creates a line chart with the specified title and axis labels.
+     *
+     * @param title The title of the chart.
+     * @return A new line chart.
+     */
     private LineChart<Number, Number> createChart(String title) {
         NumberAxis xAxis = new NumberAxis();
         xAxis.setLabel("Time");
@@ -182,6 +205,12 @@ public class Simulation extends Application {
         return chart;
     }
 
+    /**
+     * This function starts the simulation by clearing the previous simulation data,
+     * generating agents, and initializing the animation timer.
+     *
+     * @param simulationGroup The group that contains the visual representation of the agents.
+     */
     private void startSimulation(Group simulationGroup) {
         for (Slider slider : sliders) {
             slider.setDisable(true);
@@ -200,6 +229,9 @@ public class Simulation extends Application {
         int meteoriteCount = (int) meteoriteCountSlider.getValue();
         double planetSpeed = planetSpeedSlider.getValue();
         double meteoriteSpeed = meteoriteSpeedSlider.getValue();
+
+        resultsPrinter.setInputData(starCountSlider.getValue(), planetCountSlider.getValue(), meteoriteCountSlider.getValue(), planetSpeedSlider.getValue(), meteoriteSpeedSlider.getValue());
+
 
         // Initializing the board and agents generator
         Board board = new Board(1130, 800);
@@ -261,6 +293,10 @@ public class Simulation extends Application {
         timer.start();
     }
 
+    /**
+     * This function stops the simulation by stopping the animation timer and enabling the sliders.
+     * It also collects the chart data and saves the results.
+     */
     private void stopSimulation() {
         if (timer != null) {
             timer.stop();
@@ -268,11 +304,31 @@ public class Simulation extends Application {
         for (Slider slider : sliders) {
             slider.setDisable(false);
         }
+        // Collecting charts data
+        List<String> chartsData = new ArrayList<>();
+        chartsData.add("Meteorites on the board: " +
+                meteoriteSeries.getData().getLast().getYValue());
+        chartsData.add("Planets on the board: " +
+                planetSeries.getData().getLast().getYValue());
+        chartsData.add("Meteorites out of border: " +
+                absorbedMeteoritesSeries.getData().getLast().getYValue());
+
+        resultsPrinter.setChartData(chartsData);
+        resultsPrinter.saveResults();
+
         currentTime = 0;
         startButton.setDisable(false);
         stopButton.setDisable(true);
     }
 
+    /**
+     * This function removes agents from the simulation by removing their
+     * visual representation from the 'simulationGroup' and removing them from the board.
+     *
+     * @param agentsToRemove The list of agents to remove.
+     * @param simulationGroup The group that contains the visual representation of the agents.
+     * @param board The board that holds the agents.
+     */
     private void removeAgents(List<Agent> agentsToRemove, Group simulationGroup, Board board) {
         for (Agent agent : agentsToRemove) {
             Circle circle = agent.getShape();
@@ -283,6 +339,12 @@ public class Simulation extends Application {
         }
     }
 
+    /**
+     * This function updates the positions of the visual representation (circles)
+     * of the agents based on their current x and y coordinates.
+     *
+     * @param agents The list of agents to update.
+     */
     private void updateShapes(List<Agent> agents) {
         for (Agent agent : agents) {
             Circle circle = agent.getShape();
@@ -293,6 +355,13 @@ public class Simulation extends Application {
         }
     }
 
+    /**
+     * This function returns the radius of the circle representing an agent based on its type
+     * (Star, Planet, or Meteorite).
+     *
+     * @param agent The agent to get the radius for.
+     * @return The radius of the circle representing the agent.
+     */
     private double getAgentRadius(Agent agent) {
         if (agent instanceof Star) {
             return 15;
@@ -304,6 +373,9 @@ public class Simulation extends Application {
         return 1;
     }
 
+    /**
+     * This function ensures that labels always reflect the current slider value.
+     */
     private void updateSliderLabels() {
         starCountSlider.valueProperty().addListener((observable, oldValue, newValue)
                 -> starCountSlider.setValue(newValue.intValue()));
@@ -317,6 +389,12 @@ public class Simulation extends Application {
                 -> meteoriteSpeedSlider.setValue(newValue.doubleValue()));
     }
 
+    /**
+     * This function is the entry point of the JavaFX application.
+     * It launches the application using the 'launch' method from the 'Application' class.
+     *
+     * @param args The command line arguments passed to the application.
+     */
     public static void main(String[] args) {
         launch(args);
     }

@@ -7,7 +7,7 @@ import java.util.List;
 
 /**
  * The ResultsPrinter class is responsible for saving simulation results to a text file.
- * It can store user-provided input data (star count, planet count, etc.) and chart data.
+ * It can store user-provided input data (meteorite count, planet count, etc.) and chart data.
  */
 public class ResultsPrinter {
     private String starCount;

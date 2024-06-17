@@ -22,6 +22,10 @@ import javafx.stage.Stage;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * The Simulation class is the main class for the space simulation application.
+ * It handles the initialization of the user interface, simulation setup, and animation loop.
+ */
 public class Simulation extends Application {
     public static double time = 0;
     private Slider starCountSlider;

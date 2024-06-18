@@ -9,6 +9,7 @@ import java.util.Random;
  * (stars, planets, and meteorites) for the space simulation.
  */
 public class Generator {
+    //Generator board side
     public int sizeX = 1000, sizeY = 800; // Tested, don't edit
     public double minStarDistance = 200;
     public double minPlanetDistance = 25;

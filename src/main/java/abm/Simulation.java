@@ -247,10 +247,10 @@ public class Simulation extends Application {
         }
 
         // Defining the boundaries for interactions
-        double minX = 0;
-        double minY = 0;
-        double maxX = 1100; // Width
-        double maxY = 820; // Height
+        int minX = 0;
+        int minY = 0;
+        int maxX = 1100; // Width
+        int maxY = 820; // Height
         InteractionManager interactionManager = new InteractionManager(minX, minY, maxX, maxY);
 
         // Adding agents to the simulation group and setting their visual representation
